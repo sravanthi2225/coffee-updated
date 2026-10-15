@@ -20,17 +20,24 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+const rawFrontend = (process.env.FRONTEND_URL || '').replace(/\/+$/, '');
+const allowedOrigins = [
+  rawFrontend,
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://coffee-updated.vercel.app'
+].filter(Boolean);
+
 // Security & Parsing Middleware
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    const allowed = [
-      process.env.FRONTEND_URL,
-      'http://localhost:5173',
-      'http://localhost:3000',
-      'https://coffee-updated.vercel.app'
-    ].filter(Boolean);
-    if (allowed.includes(origin) || origin.endsWith('.vercel.app') || origin.endsWith('.onrender.com')) {
+    const cleanOrigin = origin.replace(/\/+$/, '');
+    if (
+      allowedOrigins.includes(cleanOrigin) ||
+      cleanOrigin.endsWith('.vercel.app') ||
+      cleanOrigin.endsWith('.onrender.com')
+    ) {
       return callback(null, true);
     }
     return callback(null, true);
