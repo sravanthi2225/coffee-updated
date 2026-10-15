@@ -1,6 +1,6 @@
 // API Client for Brew & Bloom Backend
 
-const BASE_URL = '';
+const BASE_URL = import.meta.env.VITE_API_URL || '';
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const headers: Record<string, string> = {
@@ -20,7 +20,22 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     credentials: 'include' // include httpOnly cookies
   });
 
-  const data = await res.json();
+  const contentType = res.headers.get('content-type') || '';
+  let data: any = {};
+  if (contentType.includes('application/json')) {
+    data = await res.json();
+  } else {
+    const text = await res.text();
+    if (!res.ok) {
+      throw new Error(`Backend unreachable (HTTP ${res.status}). Verify your backend URL or Render deployment status.`);
+    }
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { success: false, message: text };
+    }
+  }
+
   if (!res.ok || !data.success) {
     throw new Error(data.error?.message || data.message || `Request failed with status ${res.status}`);
   }

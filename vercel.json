@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://coffee-updated.onrender.com/api/:path*"
+    },
+    {
+      "source": "/events/:path*",
+      "destination": "https://coffee-updated.onrender.com/events/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

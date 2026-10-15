@@ -191,7 +191,12 @@ export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     refreshOverview();
 
-    const sse = new EventSource('/api/realtime/stream');
+    const apiBase = import.meta.env.VITE_API_URL || '';
+    const sse = new EventSource(`${apiBase}/api/realtime/stream`);
+
+    sse.onerror = () => {
+      // Gracefully handle reconnection without unhandled console spam
+    };
 
     sse.onmessage = (event) => {
       try {
